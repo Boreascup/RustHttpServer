@@ -1,12 +1,41 @@
 <!DOCTYPE html>
-<html lang="zh">
-<head>
-  <meta charset="UTF-8">
-  <link href="/styles.css" type="text/css" rel="stylesheet">
-  <title>主页</title>
-</head>
-<body>
-<h1>欢迎！</h1>
-my-http-server
-</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>今天喝什么🧋</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1 id="name">今天喝什么?🧋</h1>
+    <div id="choice">
+      <h2>是否有心仪的店铺？</h2>
+      <button id="yesButton" onclick="chooseStore(true)">是</button>
+      <button id="noButton" onclick="chooseStore(false)">否</button>
+    </div>
+    <div id="storeChoice" style="display: none">
+      <h2>请选择心仪的店铺：</h2>
+      <select id="store">
+        <option value="瑞幸">瑞幸</option>
+        <option value="喜茶">喜茶</option>
+        <option value="百分茶">百分茶</option>
+        <option value="一点点">一点点</option>
+      </select>
+      <button onclick="selectDrink1()">选择</button>
+    </div>
+    <div id="result" style="display: none">
+      <h2>今天的饮品是：</h2>
+      <h1 id="drink"></h1>
+      <button onclick="retryDrink()">重选饮品</button>
+    </div>
+    <div id="retryChoice" style="display: none">
+      <h2>抽中了店铺：</h2>
+      <h1 id="selectedStore"></h1>
+      <h2>要重选店铺吗？</h2>
+      <button id="yesButton" onclick="chooseStore(false)">是</button>
+      <button id="noButton" onclick="selectDrink2()">否</button>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
 </html>
