@@ -3,37 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>今天喝什么🧋</title>
+    <title>今天吃什么? 🍚</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <h1 id="name">今天喝什么?🧋</h1>
+    <h1 id="name">🍚</h1>
+    <h1 id="name">今天吃什么?</h1>
     <div id="choice">
-      <h2>是否有心仪的店铺？</h2>
+      <h2>是否有心仪的饭堂？</h2>
       <button id="yesButton" onclick="chooseStore(true)">是</button>
       <button id="noButton" onclick="chooseStore(false)">否</button>
     </div>
     <div id="storeChoice" style="display: none">
-      <h2>请选择心仪的店铺：</h2>
-      <select id="store">
-        <option value="瑞幸">瑞幸</option>
-        <option value="喜茶">喜茶</option>
-        <option value="百分茶">百分茶</option>
-        <option value="一点点">一点点</option>
+      <h2>请选择想吃的饭堂：</h2>
+      <select id="store" onchange="updateFloors()">
+        <option value="">饭堂</option>
+        <option value="榕园">榕园</option>
+        <option value="荔园">荔园</option>
+        <option value="槿园">槿园</option>
+        <option value="若海">若海</option>
       </select>
-      <button onclick="selectDrink1()">选择</button>
+      <h2>请选择楼层：</h2>
+      <select id="floor">
+        <!-- 楼层选项将动态填充 -->
+      </select>
+      <button onclick="selectFood1()">选择</button>
     </div>
     <div id="result" style="display: none">
-      <h2>今天的饮品是：</h2>
-      <h1 id="drink"></h1>
-      <button onclick="retryDrink()">重选饮品</button>
+      <h2>今天的饭是：</h2>
+      <h1 id="food"></h1>
+      <button onclick="retryFood()">重选食物</button>
     </div>
     <div id="retryChoice" style="display: none">
-      <h2>抽中了店铺：</h2>
+      <h2>抽中了饭堂：</h2>
       <h1 id="selectedStore"></h1>
-      <h2>要重选店铺吗？</h2>
-      <button id="yesButton" onclick="chooseStore(false)">是</button>
-      <button id="noButton" onclick="selectDrink2()">否</button>
+      <h2>要重选饭堂吗？</h2>
+      <button id="yesButton" onclick="retryStore()">是</button>
+      <button id="noButton" onclick="selectFood2()">否</button>
     </div>
 
     <script src="script.js"></script>

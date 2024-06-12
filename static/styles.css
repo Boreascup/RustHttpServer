@@ -1,3 +1,5 @@
+/* styles.css */
+
 body {
   background-color: #fffae6;
   display: flex;
@@ -11,7 +13,7 @@ body {
 h1 {
   color: #002379;
   text-align: center;
-  margin-top: -20px; /* 向上移动一点 */
+  margin-top: -20px; /* Slightly move up */
 }
 
 #choice,
@@ -19,7 +21,7 @@ h1 {
 #result,
 #retryChoice {
   text-align: center;
-  margin-top: 20px; /* 向下移动一点 */
+  margin-top: 20px; /* Slightly move down */
 }
 
 p {
@@ -43,24 +45,20 @@ select {
   padding: 10px;
   border-radius: 5px;
   margin-top: 10px;
-  font-size: 15px; /* 调大字体 */
 }
 
 h2 {
-  /* color: #0a6847; */
+  color: 0A6847;
   text-align: center;
-  margin-top: 20px; /* 向下移动一点 */
+  margin-top: 20px; /* Slightly move down */
 }
-
 #selectedStore,
 #drink {
-  color: #ff5f00;
+  color: #ff5f00; /* 添加这个样式规则 */
 }
-
 #yesButton {
   background-color: #ffcbcb;
 }
-
 #noButton {
   background-color: #a3d8ff;
 }
