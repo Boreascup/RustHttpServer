@@ -1,11 +1,12 @@
-use std::net::SocketAddr;
-use std::sync::Arc;
-use tokio::net::{TcpListener, TcpStream};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use crate::error::{Fail, Result};
 use crate::request::HttpRequest;
 use crate::response::{HttpResponse, HttpStatus};
 use crate::router::Router;
+use std::collections::BTreeMap;
+use std::net::SocketAddr;
+use std::sync::Arc;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::{TcpListener, TcpStream};
 
 #[derive(Clone, Debug)]
 pub struct HttpSettings {
@@ -24,7 +25,7 @@ impl HttpSettings {
     /// 默认设置
     pub fn new() -> Self {
         Self {
-            max_header_size: 8192, // 8kb
+            max_header_size: 8192,      // 8kb
             max_body_size: 8192 * 1024, // 8mb
             header_buffer: 8192,
             body_buffer: 8192,
@@ -44,7 +45,10 @@ impl Server {
     pub fn new(addr: &str, http_settings: HttpSettings) -> Self {
         let socket_addr = addr.parse().unwrap();
         let http_settings = Arc::new(http_settings);
-        Self { socket_addr, http_settings }
+        Self {
+            socket_addr,
+            http_settings,
+        }
     }
 
     // 运行
@@ -63,7 +67,16 @@ impl Server {
                         Ok(_) => {}
                         Err(err) => {
                             println!("{}", err);
-                            write_stream(&mut stream, HttpResponse::new(HttpStatus::BadRequest, None, Some(err.to_string().as_bytes().to_vec())).to_vec()).await;
+                            write_stream(
+                                &mut stream,
+                                HttpResponse::new(
+                                    HttpStatus::BadRequest,
+                                    None::<BTreeMap<&str, &str>>,
+                                    Some(err.to_string().as_bytes().to_vec()),
+                                )
+                                .to_vec(),
+                            )
+                            .await;
                         }
                     };
                 });
@@ -72,9 +85,11 @@ impl Server {
     }
 }
 
-async fn handle_conn(http_settings: &HttpSettings,
-                     mut stream: &mut TcpStream,
-                     addr: SocketAddr) -> Result<()> {
+async fn handle_conn(
+    http_settings: &HttpSettings,
+    mut stream: &mut TcpStream,
+    addr: SocketAddr,
+) -> Result<()> {
     // 读取请求
     let (header, mut body) = read_head(http_settings, &mut stream).await?;
     let content_length = get_content_length(header.as_str());
@@ -91,18 +106,23 @@ async fn handle_conn(http_settings: &HttpSettings,
 /// 响应数据
 async fn write_stream(stream: &mut TcpStream, content: Vec<u8>) {
     match stream.write_all(&content).await {
-        Ok(_) => {
-            match stream.flush().await {
-                Ok(_) => {}
-                Err(err) => { println!("{}", err); }
+        Ok(_) => match stream.flush().await {
+            Ok(_) => {}
+            Err(err) => {
+                println!("{}", err);
             }
+        },
+        Err(err) => {
+            println!("{}", err);
         }
-        Err(err) => { println!("{}", err); }
     };
 }
 
 /// 读取请求头
-async fn read_head(http_settings: &HttpSettings, stream: &mut TcpStream) -> Result<(String, Vec<u8>)> {
+async fn read_head(
+    http_settings: &HttpSettings,
+    stream: &mut TcpStream,
+) -> Result<(String, Vec<u8>)> {
     // 初始化缓存
     let mut header = Vec::new();
     let mut body = Vec::new();
@@ -173,7 +193,7 @@ fn get_content_length(head: &str) -> usize {
             if key.trim().to_lowercase().eq("content-length") {
                 size = match value.parse::<usize>() {
                     Ok(s) => s,
-                    Err(_) => 0
+                    Err(_) => 0,
                 };
             }
         }
@@ -182,10 +202,12 @@ fn get_content_length(head: &str) -> usize {
 }
 
 /// 读取完整的body
-async fn read_body(http_settings: &HttpSettings,
-                   stream: &mut TcpStream,
-                   body: &mut Vec<u8>,
-                   content_len: usize) -> Result<()> {
+async fn read_body(
+    http_settings: &HttpSettings,
+    stream: &mut TcpStream,
+    body: &mut Vec<u8>,
+    content_len: usize,
+) -> Result<()> {
     if content_len > http_settings.max_body_size {
         return Err(Fail::new("请求体大小超出限制"));
     }
@@ -195,11 +217,15 @@ async fn read_body(http_settings: &HttpSettings,
         let rest_len = content_len - body.len();
         let buf_len = if rest_len > http_settings.body_buffer {
             http_settings.body_buffer
-        } else { rest_len };
+        } else {
+            rest_len
+        };
         let mut buf = vec![0u8; buf_len];
         let length = match stream.read(&mut buf).await {
-            Ok(len) => { len }
-            Err(_) => { return Err(Fail::new("请求体读取失败")); }
+            Ok(len) => len,
+            Err(_) => {
+                return Err(Fail::new("请求体读取失败"));
+            }
         };
         buf.truncate(length);
         // 追加

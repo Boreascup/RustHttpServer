@@ -1,0 +1,16 @@
+# Rust/Cargo generated files
+/target/
+**/*.rs.bk
+
+# VS Code specific files
+.vscode/
+
+# Rustfmt configuration
+.rustfmt.toml
+
+# Cargo.lock file
+Cargo.lock
+
+# Build output
+Cargo.lock.orig
+Cargo.lock.prev

@@ -1,9 +1,9 @@
-use std::collections::BTreeMap;
 use crate::constant;
 use crate::error::{Fail, Result};
 use crate::utils::split;
+use std::collections::BTreeMap;
 
-/// 支持的http方法
+// 支持的http方法
 #[derive(Debug, PartialEq)]
 pub enum HttpMethod {
     Unknown,
@@ -24,7 +24,7 @@ impl From<&str> for HttpMethod {
     }
 }
 
-/// 支持的http版本
+// 支持的http版本
 #[derive(Debug, PartialEq)]
 pub enum HttpVersion {
     Unknown,
@@ -43,7 +43,8 @@ impl From<&str> for HttpVersion {
     }
 }
 
-/// http请求
+// http请求
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct HttpRequest<'a> {
     // 请求方法
@@ -59,35 +60,42 @@ pub struct HttpRequest<'a> {
     // 参数
     search_params: BTreeMap<String, &'a str>,
     // 请求体
-    body: BTreeMap<String, Vec<u8>>,
+    _body: BTreeMap<String, Vec<u8>>,
 }
 
+#[allow(dead_code)]
 impl<'a> HttpRequest<'a> {
-    pub fn from(raw_header: &'a str,
-                raw_body: Vec<u8>,
-                ip: &'a str,
-    ) -> Result<HttpRequest<'a>> {
+    pub fn from(raw_header: &'a str, raw_body: Vec<u8>, ip: &'a str) -> Result<HttpRequest<'a>> {
         let mut header = raw_header.lines();
         // 获取请求行
-        let req_ln = header.next()
-            .ok_or_else(|| Fail::new("获取请求行失败"))?;
+        let req_ln = header.next().ok_or_else(|| Fail::new("获取请求行失败"))?;
         // 按照空格分割
         let mut words = req_ln.split_whitespace();
         // 获取请求方法
-        let method: HttpMethod = words.next()
-            .ok_or_else(|| Fail::new("无法解析请求方法"))?.into();
+        let method: HttpMethod = words
+            .next()
+            .ok_or_else(|| Fail::new("无法解析请求方法"))?
+            .into();
         let mut search_params_raw = "";
         let url = if let Some(full_url) = words.next() {
             let mut split_url = full_url.splitn(2, '?');
-            let url = split_url.next().ok_or_else(|| Fail::new("无法解析请求地址"))?;
+            let url = split_url
+                .next()
+                .ok_or_else(|| Fail::new("无法解析请求地址"))?;
             if let Some(params) = split_url.next() {
                 search_params_raw = params;
             }
             url
-        } else { "/" };
+        } else {
+            "/"
+        };
+
         // 获取http版本
-        let version: HttpVersion = words.next()
-            .ok_or_else(|| Fail::new("无法解析http协议版本"))?.into();
+        let version: HttpVersion = words
+            .next()
+            .ok_or_else(|| Fail::new("无法解析http协议版本"))?
+            .into();
+
         // 读取请求头
         let mut headers = BTreeMap::new();
         for hl in header {
@@ -96,6 +104,7 @@ impl<'a> HttpRequest<'a> {
                 headers.insert(key.trim().to_lowercase(), value.trim());
             }
         }
+
         // 查询参数
         let search_params = parse_parameters(search_params_raw, |v| v)?;
         // 处理请求体
@@ -107,9 +116,10 @@ impl<'a> HttpRequest<'a> {
             ip,
             headers,
             search_params,
-            body,
+            _body: body,
         })
     }
+
     pub fn method(&self) -> &HttpMethod {
         &self.method
     }
@@ -129,11 +139,11 @@ impl<'a> HttpRequest<'a> {
         &self.search_params
     }
     pub fn body(&self) -> &BTreeMap<String, Vec<u8>> {
-        &self.body
+        &self._body
     }
     pub fn body_utf8(&self) -> BTreeMap<String, String> {
         let mut form = BTreeMap::new();
-        for (k, v) in &self.body {
+        for (k, v) in &self._body {
             form.insert(k.to_string(), String::from_utf8_lossy(v).to_string());
         }
         form
@@ -147,16 +157,16 @@ fn parse_body(headers: &BTreeMap<String, &str>, body: &[u8]) -> Result<BTreeMap<
     let content_type = match headers.get("content-type") {
         None => constant::TEXT_PLAIN,
         Some(&s) => {
-            let c_type = s.trim();
             for part in s.split(';') {
                 let part = part.trim();
                 if part.starts_with("boundary=") {
                     boundary = part.split('=').nth(1);
                 }
             }
-            c_type
+            s.trim()
         }
     };
+
     if content_type.starts_with(constant::APPLICATION_X_WWW_FORM_URLENCODED) {
         // 普通表单
         parse_parameters(&String::from_utf8(body.to_vec())?, |v| {
@@ -164,7 +174,10 @@ fn parse_body(headers: &BTreeMap<String, &str>, body: &[u8]) -> Result<BTreeMap<
         })
     } else if content_type.starts_with(constant::MULTIPART_FORM_DATA) {
         // Multipart表单
-        parse_multipart_form(body, boundary.ok_or_else(|| Fail::new("没有有效的boundary"))?)
+        parse_multipart_form(
+            body,
+            boundary.ok_or_else(|| Fail::new("没有有效的boundary"))?,
+        )
     } else {
         // 其他类型存储为原始字节
         let mut map = BTreeMap::new();
@@ -173,7 +186,7 @@ fn parse_body(headers: &BTreeMap<String, &str>, body: &[u8]) -> Result<BTreeMap<
     }
 }
 
-/// 转换MultipartForm
+// 转换MultipartForm
 fn parse_multipart_form(body: &[u8], boundary: &str) -> Result<BTreeMap<String, Vec<u8>>> {
     let mut params = BTreeMap::new();
     // 拆分
@@ -188,39 +201,50 @@ fn parse_multipart_form(body: &[u8], boundary: &str) -> Result<BTreeMap<String, 
             section = &section[..(section.len() - last_sep.len() - 2)];
         }
         let lines = split(&section, b"\r\n");
-        let name = String::from_utf8_lossy(lines[0])
-            .split(';')
-            .map(|s| s.trim())
-            .find_map(|s| {
-                if s.starts_with("name=") {
-                    let name = s.split('=').nth(1)?;
-                    Some(name[1..(name.len() - 1)].to_lowercase())
-                } else { None }
-            })
-            .ok_or_else(|| Fail::new("表单内容没有name属性"))?;
-        // TODO 获取每个section中的content-type
-        // 查找数据行
+
+        // 解析头部，获取name和Content-Type
+        let mut name: Option<String> = None;
+        let mut _content_type: Option<String> = None;
         let mut data_line_idx = 0_usize;
-        for &l in &lines {
-            data_line_idx += 1;
-            if l.len() == 0 {
+
+        for (i, &line) in lines.iter().enumerate() {
+            let line_str = String::from_utf8_lossy(line);
+            if line_str.starts_with("Content-Disposition:") {
+                name = line_str.split(';').map(|s| s.trim()).find_map(|s| {
+                    if s.starts_with("name=") {
+                        let name = s.split('=').nth(1)?;
+                        Some(name[1..(name.len() - 1)].to_lowercase())
+                    } else {
+                        None
+                    }
+                });
+            } else if line_str.starts_with("Content-Type:") {
+                _content_type = line_str.split(':').nth(1).map(|s| s.trim().to_string());
+            }
+
+            if line.is_empty() {
+                data_line_idx = i + 1;
                 break;
             }
         }
-        // 获取值
-        let data_line = lines
+
+        let name = name.ok_or_else(|| Fail::new("表单内容没有name属性"))?;
+        let value = lines
             .get(data_line_idx)
-            .ok_or_else(|| Fail::new("表单内容损坏"))?;
-        let value = data_line.to_vec();
+            .ok_or_else(|| Fail::new("表单内容损坏"))?
+            .to_vec();
         params.insert(name, value);
     }
     Ok(params)
 }
 
-/// 转换表单和查询参数
-fn parse_parameters<'a, V>(raw: &'a str, process_value: fn(&'a str) -> V)
-                           -> Result<BTreeMap<String, V>> {
+// 转换表单和查询参数
+fn parse_parameters<'a, V>(
+    raw: &'a str,
+    process_value: fn(&'a str) -> V,
+) -> Result<BTreeMap<String, V>> {
     let mut params = BTreeMap::new();
+
     // 分割参数
     for p in raw.split('&') {
         // 分割key和value
@@ -232,7 +256,9 @@ fn parse_parameters<'a, V>(raw: &'a str, process_value: fn(&'a str) -> V)
                 .to_lowercase(),
             process_value(if let Some(value) = ps.next() {
                 value.trim()
-            } else { "" }),
+            } else {
+                ""
+            }),
         );
     }
     Ok(params)
