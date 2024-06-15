@@ -1,5 +1,5 @@
 /// 按照指定分隔符分割u8数组
-pub fn split<D: AsRef<[u8]> + ?Sized>(data: &D, separator: impl AsRef<[u8]>) -> Vec<&[u8]> {
+pub fn split<D: AsRef<[u8]>>(data: &D, separator: impl AsRef<[u8]>) -> Vec<&[u8]> {
     let sep = separator.as_ref();
     let mut data = data.as_ref();
     // 查找分隔符位置
