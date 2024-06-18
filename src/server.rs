@@ -25,8 +25,8 @@ impl HttpSettings {
     /// 默认设置
     pub fn new() -> Self {
         Self {
-            max_header_size: 8192,      // 8kb
-            max_body_size: 8192 * 1024, // 8mb
+            max_header_size: 8192,      
+            max_body_size: 8192 * 1024, 
             header_buffer: 8192,
             body_buffer: 8192,
             header_read_attempts: 3,

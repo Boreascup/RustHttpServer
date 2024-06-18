@@ -1,7 +1,7 @@
 use std::{env, fs};
 use std::collections::BTreeMap;
 use crate::constant;
-use crate::request::{HttpMethod, HttpRequest};
+use crate::request::HttpRequest;
 use crate::response::{HttpResponse, HttpStatus};
 
 /// handler接口
@@ -46,18 +46,3 @@ impl Handler for StaticHandler {
     }
 }
 
-pub struct HelloHandler;
-
-impl Handler for HelloHandler {
-    fn handle<'a>(req: &HttpRequest) -> HttpResponse<'a> {
-        match req.method() {
-            HttpMethod::Get => {
-                let str = "{\"code\":200, \"msg\":\"OK\"}";
-                let mut headers = BTreeMap::new();
-                headers.insert("Content-Type", constant::APPLICATION_JSON);
-                HttpResponse::new(HttpStatus::Ok, Some(headers), Some(str.as_bytes().to_vec()))
-            }
-            _ => HttpResponse::not_found(Self::load_file("404.html"))
-        }
-    }
-}

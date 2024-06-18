@@ -49,7 +49,7 @@ impl From<&str> for HttpVersion {
 pub struct HttpRequest<'a> {
     // 请求方法
     method: HttpMethod,
-    // 请求路径
+    // URL
     url: &'a str,
     // 请求版本
     version: HttpVersion,
