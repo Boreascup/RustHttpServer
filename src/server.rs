@@ -10,11 +10,11 @@ use tokio::net::{TcpListener, TcpStream};
 
 #[derive(Clone, Debug)]
 pub struct HttpSettings {
-    /// 最大请求头大小
+    // 最大请求头大小
     pub max_header_size: usize,
-    /// 最大请求体大小
+    // 最大请求体大小
     pub max_body_size: usize,
-    /// 请求头读取
+    // 请求头读取
     pub header_buffer: usize,
     pub body_buffer: usize,
     pub header_read_attempts: usize,
@@ -22,11 +22,11 @@ pub struct HttpSettings {
 }
 
 impl HttpSettings {
-    /// 默认设置
+    // 默认设置
     pub fn new() -> Self {
         Self {
-            max_header_size: 8192,      
-            max_body_size: 8192 * 1024, 
+            max_header_size: 8192,
+            max_body_size: 8192 * 1024,
             header_buffer: 8192,
             body_buffer: 8192,
             header_read_attempts: 3,
@@ -103,7 +103,7 @@ async fn handle_conn(
     Ok(())
 }
 
-/// 响应数据
+// 响应数据
 async fn write_stream(stream: &mut TcpStream, content: Vec<u8>) {
     match stream.write_all(&content).await {
         Ok(_) => match stream.flush().await {
@@ -118,7 +118,7 @@ async fn write_stream(stream: &mut TcpStream, content: Vec<u8>) {
     };
 }
 
-/// 读取请求头
+// 读取请求头
 async fn read_head(
     http_settings: &HttpSettings,
     stream: &mut TcpStream,
@@ -184,7 +184,7 @@ async fn read_head(
     Ok((String::from_utf8(header)?, body))
 }
 
-/// 从请求头获取Content-Length
+// 从请求头获取Content-Length
 fn get_content_length(head: &str) -> usize {
     let mut size: usize = 0;
     for hl in head.lines() {
@@ -201,7 +201,7 @@ fn get_content_length(head: &str) -> usize {
     size
 }
 
-/// 读取完整的body
+// 读取完整的body
 async fn read_body(
     http_settings: &HttpSettings,
     stream: &mut TcpStream,

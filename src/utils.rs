@@ -1,4 +1,4 @@
-/// 按照指定分隔符分割u8数组
+// 按照指定分隔符分割u8数组
 pub fn split<D: AsRef<[u8]>>(data: &D, separator: impl AsRef<[u8]>) -> Vec<&[u8]> {
     let sep = separator.as_ref();
     let mut data = data.as_ref();
@@ -15,7 +15,7 @@ pub fn split<D: AsRef<[u8]>>(data: &D, separator: impl AsRef<[u8]>) -> Vec<&[u8]
     buf
 }
 
-/// 查找第一个所在位置
+// 查找第一个所在位置
 pub fn scan(data: impl AsRef<[u8]>, pattern: impl AsRef<[u8]>) -> Option<usize> {
     let data: &[u8] = data.as_ref();
     let pat: &[u8] = pattern.as_ref();

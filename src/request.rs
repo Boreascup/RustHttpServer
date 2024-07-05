@@ -150,7 +150,7 @@ impl<'a> HttpRequest<'a> {
     }
 }
 
-/// 处理请求体
+// 处理请求体
 fn parse_body(headers: &BTreeMap<String, &str>, body: &[u8]) -> Result<BTreeMap<String, Vec<u8>>> {
     let mut boundary = None;
     // 获取content-type

@@ -1,6 +1,6 @@
+use super::handler::{Handler, StaticHandler};
 use crate::request::HttpRequest;
 use crate::response::HttpResponse;
-use super::handler::{Handler, StaticHandler};
 
 pub struct Router;
 

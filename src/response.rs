@@ -2,7 +2,7 @@ use crate::constant;
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 
-/// HTTP状态码
+// HTTP状态码
 #[allow(dead_code)]
 #[derive(Debug, PartialEq, Clone)]
 pub enum HttpStatus {
@@ -12,7 +12,7 @@ pub enum HttpStatus {
     InternalServerError,
 }
 
-/// 实现 HttpStatus 的字符串表示方法
+// 实现 HttpStatus 的字符串表示方法
 impl HttpStatus {
     fn to_str(&self) -> &str {
         match self {
@@ -24,7 +24,7 @@ impl HttpStatus {
     }
 }
 
-/// HTTP响应
+// HTTP响应
 #[derive(Debug, PartialEq, Clone)]
 pub struct HttpResponse<'a> {
     version: Cow<'a, str>,
@@ -92,7 +92,7 @@ impl<'a> HttpResponse<'a> {
         header_string
     }
 
-    /// 转换为字节数组
+    // 转换为字节数组
     pub fn to_vec(&self) -> Vec<u8> {
         let mut vec = format!(
             "{} {}\r\n{}Content-Length: {}\r\n\r\n",

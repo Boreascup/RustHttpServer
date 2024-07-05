@@ -1,10 +1,10 @@
-use std::{env, fs};
-use std::collections::BTreeMap;
 use crate::constant;
 use crate::request::HttpRequest;
 use crate::response::{HttpResponse, HttpStatus};
+use std::collections::BTreeMap;
+use std::{env, fs};
 
-/// handler接口
+// handler接口
 pub trait Handler {
     fn handle<'a>(req: &HttpRequest) -> HttpResponse<'a>;
     fn load_file(file_name: &str) -> Option<Vec<u8>> {
@@ -13,7 +13,7 @@ pub trait Handler {
     }
 }
 
-/// 静态资源处理器
+// 静态资源处理器
 pub struct StaticHandler;
 
 impl Handler for StaticHandler {
@@ -24,9 +24,7 @@ impl Handler for StaticHandler {
             "" => {
                 let mut headers = BTreeMap::new();
                 headers.insert("Content-Type", constant::TEXT_HTML);
-                HttpResponse::new(HttpStatus::Ok,
-                                  Some(headers),
-                                  Self::load_file("index.html"))
+                HttpResponse::new(HttpStatus::Ok, Some(headers), Self::load_file("index.html"))
             }
             path => match Self::load_file(path) {
                 Some(contents) => {
@@ -41,8 +39,7 @@ impl Handler for StaticHandler {
                     HttpResponse::new(HttpStatus::Ok, Some(headers), Some(contents))
                 }
                 None => HttpResponse::not_found(Self::load_file("404.html")),
-            }
+            },
         }
     }
 }
-
